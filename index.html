@@ -2270,6 +2270,7 @@ a {
 .mis-stat-box { flex:1; min-width:70px; border:1px solid #E5E7EB; border-radius:6px; padding:8px; background:white; }
 .mis-stat-box.dark { background:#1F2937; color:white; border-color:#374151; }
 .mis-stat-box.dark .mis-stat-label { color:#9CA3AF; }
+.mis-stat-box.dark .mis-stat-val { color:#ffffff; }
 .mis-stat-box.dark .mis-stat-sub { color:#6B7280; }
 .mis-stat-label { font-size:8px; color:#6B7280; margin-bottom:4px; }
 .mis-stat-val { font-size:16px; font-weight:700; color:#111827; font-family:'Outfit',sans-serif; }
@@ -7423,6 +7424,83 @@ a {
           .feature-item:hover .feature-text { color: rgba(255,255,255,0.92); }
           [data-theme="light"] .feature-item:hover .feature-text { color: rgba(15, 10, 40, 0.88); }
 
+          [data-theme="light"] .pricing-book-sub { color: rgba(15,10,40,0.50) !important; }
+          .pricing-book-heading {
+            font-size: clamp(26px, 3.5vw, 38px);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: #ffffff;
+          }
+          [data-theme="light"] .pricing-book-heading {
+            color: #1e0a4e;
+          }
+          /* Scratch Card */
+          .scratch-card-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            height: 90px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 8px;
+            cursor: crosshair;
+            user-select: none;
+            box-shadow: 0 4px 20px rgba(109,40,217,0.18), 0 1px 4px rgba(0,0,0,0.08);
+          }
+          .scratch-reveal {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+            border-radius: 16px;
+            z-index: 0;
+          }
+          [data-theme="dark"] .scratch-reveal {
+            background: linear-gradient(135deg, #3b1fa8 0%, #5b21b6 100%);
+          }
+          .scratch-reveal-text {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #4c1d95;
+          }
+          [data-theme="dark"] .scratch-reveal-text { color: #ffffff; }
+          .scratch-reveal-sub {
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(76,29,149,0.6);
+            margin-top: 2px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+          }
+          [data-theme="dark"] .scratch-reveal-sub { color: rgba(255,255,255,0.55); }
+          .scratch-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            z-index: 1;
+            touch-action: none;
+          }
+          .scratch-hint {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            z-index: 2;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+          }
+          .scratch-hint.hidden { opacity: 0; }
           .book-demo-btn {
             width: 100%;
             padding: 16px 0;
@@ -7486,16 +7564,19 @@ a {
                             </div>
                             
                             <div>
-                                <div class="price-block" style="text-align: left; margin-bottom: 24px;">
-                                    <div class="price-row" style="justify-content: flex-start; white-space: nowrap;">
-                                        <span class="price-currency">₹</span>
-                                        <span class="price-amount">15,000</span>
-                                        <span class="price-period" style="font-size: 14.5px; white-space: nowrap;">/ month per company</span>
+                                <div style="text-align: left; margin-bottom: 24px;">
+                                    <!-- Scratch Card -->
+                                    <div class="scratch-card-wrap">
+                                        <canvas id="scratchCanvas" class="scratch-canvas"></canvas>
+                                        <div class="scratch-reveal">
+                                            <div class="scratch-reveal-text">Book a Demo</div>
+                                            <div class="scratch-reveal-sub">Your exclusive access awaits</div>
+                                        </div>
+                                        <div class="scratch-hint" id="scratchHint">Scratch to reveal</div>
                                     </div>
-                                    <div class="price-subtext" style="text-align: left; margin-top: 6px; font-weight: 600; color: rgba(15,10,40,0.94);">+ ₹5,000 / month for each additional company</div>
-                                    <div class="price-subtext" style="text-align: left; margin-top: 2px;">Flat rate, transparent execution.</div>
+                                    <div style="margin-top: 8px; font-size: 14px; font-weight: 400;" class="pricing-book-sub">Get a personalised walkthrough and custom pricing for your team.</div>
                                 </div>
-                                
+
                                 <button onclick="openModal()" class="book-demo-btn">Book a demo</button>
                             </div>
                         </div>
@@ -7592,6 +7673,99 @@ a {
             }, { threshold: 0.12, passive: true });
 
             pricingEls.forEach(el => pricingObserver.observe(el));
+
+            // --- Scratch Card ---
+            const canvas = document.getElementById('scratchCanvas');
+            if (!canvas) return;
+            const wrap = canvas.closest('.scratch-card-wrap');
+            const hint = document.getElementById('scratchHint');
+            const ctx = canvas.getContext('2d');
+
+            function initCanvas() {
+                const rect = wrap.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                canvas.style.width = rect.width + 'px';
+                canvas.style.height = rect.height + 'px';
+                ctx.scale(dpr, dpr);
+
+                // Draw the scratch surface
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                const grad = ctx.createLinearGradient(0, 0, rect.width, rect.height);
+                if (isDark) {
+                    grad.addColorStop(0, '#4c1d95');
+                    grad.addColorStop(1, '#7c3aed');
+                } else {
+                    grad.addColorStop(0, '#7c3aed');
+                    grad.addColorStop(1, '#a78bfa');
+                }
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.roundRect(0, 0, rect.width, rect.height, 16);
+                ctx.fill();
+
+                // Subtle texture lines
+                ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < rect.width; i += 14) {
+                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, rect.height); ctx.stroke();
+                }
+
+                // Coin icon hint
+                ctx.font = 'bold 13px Inter, sans-serif';
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('✦  Scratch to reveal  ✦', rect.width / 2, rect.height / 2);
+            }
+
+            initCanvas();
+
+            let isScratching = false;
+            let scratchedPixels = 0;
+            let totalPixels = 0;
+            let revealed = false;
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const src = e.touches ? e.touches[0] : e;
+                return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+            }
+
+            function scratch(x, y) {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(x, y, 22, 0, Math.PI * 2);
+                ctx.fill();
+                if (hint && !hint.classList.contains('hidden')) hint.classList.add('hidden');
+                checkReveal();
+            }
+
+            function checkReveal() {
+                if (revealed) return;
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                let cleared = 0;
+                for (let i = 3; i < imageData.data.length; i += 4) {
+                    if (imageData.data[i] === 0) cleared++;
+                }
+                const pct = cleared / (imageData.data.length / 4);
+                if (pct > 0.55) {
+                    revealed = true;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    canvas.style.transition = 'opacity 0.5s ease';
+                    canvas.style.opacity = '0';
+                    setTimeout(() => { canvas.style.pointerEvents = 'none'; }, 500);
+                }
+            }
+
+            canvas.addEventListener('mousedown', (e) => { isScratching = true; scratch(...Object.values(getPos(e))); });
+            canvas.addEventListener('mousemove', (e) => { if (isScratching) scratch(...Object.values(getPos(e))); });
+            canvas.addEventListener('mouseup', () => isScratching = false);
+            canvas.addEventListener('mouseleave', () => isScratching = false);
+            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); isScratching = true; scratch(...Object.values(getPos(e))); }, { passive: false });
+            canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (isScratching) scratch(...Object.values(getPos(e))); }, { passive: false });
+            canvas.addEventListener('touchend', () => isScratching = false);
         });
         </script>
     </section>
@@ -8243,12 +8417,7 @@ a {
             infinite: false,
         });
 
-        // Pause Lenis when hovering inside the laptop screen to avoid scroll conflict
-        const laptopScreen = document.querySelector('.laptop-screen');
-        if (laptopScreen) {
-            laptopScreen.addEventListener('mouseenter', () => lenis.stop());
-            laptopScreen.addEventListener('mouseleave', () => lenis.start());
-        }
+
 
         function raf(time) {
             lenis.raf(time);
@@ -8906,11 +9075,13 @@ a {
         // Scroll inside the slide area
         if (presSlideArea) {
             presSlideArea.addEventListener('wheel', (e) => {
-                e.stopPropagation();
-                presSlideArea.scrollTop += e.deltaY;
                 const atTop = presSlideArea.scrollTop === 0 && e.deltaY < 0;
                 const atBottom = presSlideArea.scrollTop + presSlideArea.clientHeight >= presSlideArea.scrollHeight - 1 && e.deltaY > 0;
-                if (!atTop && !atBottom) e.preventDefault();
+                if (!atTop && !atBottom) {
+                    e.stopPropagation();
+                    presSlideArea.scrollTop += e.deltaY;
+                    e.preventDefault();
+                }
             }, { passive: false });
         }
 
@@ -8951,22 +9122,20 @@ a {
             });
         })();
 
-        // --- Scroll fix: intercept wheel events on the 3D-transformed laptop screen ---
-        // When the laptop-assembly has a CSS 3D transform, browsers may block scroll.
-        // We manually handle wheel events on the scroll container to guarantee scrolling.
+        // --- Scroll fix: allow internal laptop content to scroll without blocking page scroll ---
         function initScrollFix() {
             document.querySelectorAll('.mis-page-scroll').forEach(el => {
                 el.addEventListener('wheel', function(e) {
-                    e.stopPropagation();
-                    // Let native scroll handle it, but ensure it fires
                     const delta = e.deltaY || e.detail || (-e.wheelDelta);
-                    this.scrollTop += delta;
-                    // Only prevent default if we actually scrolled (prevent page scroll)
                     const atTop = this.scrollTop === 0 && delta < 0;
                     const atBottom = this.scrollTop + this.clientHeight >= this.scrollHeight - 1 && delta > 0;
+                    // Only capture the event if the inner container can actually scroll in that direction
                     if (!atTop && !atBottom) {
+                        e.stopPropagation();
+                        this.scrollTop += delta;
                         e.preventDefault();
                     }
+                    // Otherwise fall through — let Lenis scroll the page
                 }, { passive: false });
             });
         }
