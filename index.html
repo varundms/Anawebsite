@@ -1785,48 +1785,57 @@ a {
 
 @media (max-width: 768px) {
   .comparison-table-wrapper {
-    border-radius: 20px;
-    width: calc(100% - 32px);
-    margin-left: 16px;
-    margin-right: 16px;
+    border-radius: 16px;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    overflow: hidden;
   }
 
+  /* Show header row on mobile as 3-column */
   .table-header-row {
-    display: none;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr;
+    padding: 8px 8px;
+    gap: 4px;
   }
+  .th-pill { padding: 4px 6px; font-size: 8px; gap: 3px; }
+  .th-indicator { width: 5px; height: 5px; }
 
+  /* Each row as compact 3-column grid */
   .table-row {
-    display: flex;
-    flex-direction: column;
-    padding: 16px 18px;
-    gap: 8px;
-    opacity: 1;
-    transform: none;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr;
+    flex-direction: unset !important;
+    padding: 10px 8px !important;
+    gap: 6px !important;
+    align-items: start;
   }
 
   .problem-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 0 !important;
+  }
+  .icon-box { width: 22px; height: 22px; flex-shrink: 0; }
+  .icon-box svg { width: 10px; height: 10px; }
+  .problem-label { font-size: 10px; line-height: 1.3; font-weight: 600; }
+
+  .other-tools-cell {
+    display: flex;
+    align-items: flex-start;
     padding: 0;
   }
+  .other-tools-text { font-size: 10px; line-height: 1.3; }
+  .ana-cell { display: flex; align-items: flex-start; gap: 3px; }
+  .ana-solution-text { font-size: 10px; line-height: 1.3; }
+  .check-badge { width: 14px; height: 14px; min-width: 14px; margin-top: 1px; }
+  .check-badge svg { width: 7px; height: 7px; }
 
-  .other-tools-text::before {
-    content: '✗ ';
-    color: rgba(239, 68, 68, 0.55);
-    font-style: normal;
-    font-size: 11px;
-  }
-
-  .ana-solution-text::before {
-    content: '✓ ';
-    color: #4ade80;
-    font-style: normal;
-  }
-
-  .other-tools-cell::after,
-  .table-col-divider-1,
-  .table-col-divider-2,
-  .ana-column-highlight {
-    display: none;
-  }
+  /* Hide decorative overlays */
+  .table-col-divider-1, .table-col-divider-2,
+  .other-tools-cell::after, .ana-column-highlight { display: none !important; }
 }
 
 
@@ -4760,6 +4769,9 @@ a {
 }
 
 
+/* Inline step videos - mobile only */
+.rw-step-video { display: none; }
+
 .rw-video {
     width: 100%;
     height: auto;
@@ -4767,6 +4779,144 @@ a {
     object-fit: contain;
     border-radius: 0;
     background: transparent;
+}
+
+/* ============================================================
+   COMPREHENSIVE MOBILE STYLES (max-width: 768px)
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* --- Base & Spacing --- */
+  .container { padding: 0 16px; }
+  .pb-spacing { padding-bottom: 72px; }
+  .py-spacing { padding: 72px 0; }
+  .section-header { margin-bottom: 40px; }
+  .section-header h2 { font-size: clamp(26px, 7vw, 36px); }
+  .section-header p { font-size: 15px; }
+
+  /* --- Hero --- */
+  .hero { padding-top: 120px; padding-bottom: 60px; }
+  .hero-container { gap: 36px; }
+  .hero-content { text-align: center; }
+  .hero-content h1 { font-size: clamp(32px, 9vw, 48px); }
+  .hero-content p { margin: 0 auto; }
+  .hero-buttons { gap: 12px; justify-content: center; }
+  .hero-buttons .btn { width: 100%; justify-content: center; }
+  .hero-keywords { flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .hero-visual { display: none; }
+
+  /* --- Interactive Laptop Section --- */
+  .interactive-demo-section { padding: 60px 0 0; }
+  .laptop-wrapper {
+    margin: 24px auto 0;
+    perspective: none;
+    cursor: default;
+  }
+  /* On mobile: flatten the laptop, show it as a simple framed screen */
+  .laptop-assembly {
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+  .laptop-lid {
+    border-radius: 12px 12px 0 0;
+    border-width: 3px;
+    padding-bottom: 72%;
+  }
+  .laptop-screen {
+    top: 16px;
+    left: 12px;
+    right: 12px;
+    bottom: 16px;
+    border-radius: 4px;
+  }
+  .laptop-base { height: 16px; border-radius: 0 0 16px 16px; }
+  .laptop-shadow { display: none; }
+  .laptop-camera { width: 4px; height: 4px; top: 7px; }
+
+  /* Scale down the internal UI to fit mobile screen */
+  .mis-app { font-size: 8px; }
+  .mis-sidebar { width: 100px; }
+  .mis-nav-item { padding: 4px 6px; font-size: 7.5px; gap: 4px; }
+  .mis-sidebar-section { font-size: 6.5px; padding: 6px 6px 3px; }
+  .mis-sidebar-footer { padding: 6px; }
+
+  /* --- Railway / How It Works --- */
+  .railway-layout { flex-direction: column; }
+  .railway-sticky-wrapper { display: none; }
+  .railway-scroller { width: 100%; }
+  .rw-step { padding: 32px 0 8px; }
+  .rw-step h3 { font-size: 20px; }
+  .rw-step p { font-size: 14px; }
+  /* Show inline video under each step on mobile */
+  .rw-step-video {
+    display: block;
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 16px;
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+  }
+  .rw-step-video video {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+  }
+
+  /* --- Godly tiles / cards --- */
+  .masonry-wall { grid-template-columns: 1fr; }
+  .godly-tile { border-radius: 16px; }
+  .grid-3 { grid-template-columns: 1fr; gap: 16px; }
+
+  /* --- Marquee --- */
+  .marquee-logo { min-width: 100px; padding: 10px 16px; }
+
+  /* --- Feature rows --- */
+  .feature-row { flex-direction: column !important; gap: 32px; }
+  .feature-row .feature-text-col,
+  .feature-row .feature-visual-col { width: 100% !important; }
+  .feature-row.reverse { flex-direction: column !important; }
+
+  /* --- Testimonials --- */
+  .testimonials-grid,
+  .quote-grid { grid-template-columns: 1fr; }
+
+  /* --- Pricing card --- */
+  .pricing-card-content { flex-direction: column; gap: 24px; }
+  .pricing-card-divider { display: none; }
+  .pricing-card-left { text-align: center !important; }
+  .scratch-card-wrap { max-width: 100%; }
+  .book-demo-btn { font-size: 14px; padding: 14px 0; }
+
+  /* --- FAQ --- */
+  .faq-grid { grid-template-columns: 1fr; }
+
+  /* --- Footer --- */
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .footer-brand { max-width: 100%; }
+
+  /* --- CTA banner --- */
+  .cta-banner { padding: 40px 20px; border-radius: 20px; }
+  .cta-banner h2 { font-size: clamp(24px, 7vw, 36px); }
+
+  /* --- Misc --- */
+  .pop-in-row { flex-direction: column; gap: 16px; }
+  .commitment-grid { grid-template-columns: 1fr; }
+  .trust-row { flex-wrap: wrap; justify-content: center; gap: 12px; }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .container { padding: 0 12px; }
+  .hero { padding-top: 100px; }
+  .hero-content h1 { font-size: 28px; }
+  .laptop-lid { padding-bottom: 80%; }
+  .mis-sidebar { width: 80px; }
+  .mis-nav-item { font-size: 6.5px; padding: 3px 5px; }
+  .section-header h2 { font-size: 24px; }
+  .pricing-card { padding: 24px 16px; border-radius: 20px; }
 }
 </style>
 </head>
@@ -6668,21 +6818,33 @@ a {
                             <div class="rw-num">01</div>
                             <h3>Setup</h3>
                             <p>Load your pre-defined objectives, KPI targets, and strategies into Ana. Everything your team has planned is structured and ready to execute.</p>
+                            <div class="rw-step-video">
+                                <video src="assets/Videos/SETUP.mp4" autoplay loop muted playsinline class="rw-video"></video>
+                            </div>
                         </div>
                         <div class="rw-step" id="rw-step-2">
                             <div class="rw-num">02</div>
                             <h3>Tracking</h3>
                             <p>Monitor real-time progress using active-fetch data streams. Identify deviations before they become crises.</p>
+                            <div class="rw-step-video">
+                                <video src="assets/Videos/TRACKING.mp4" autoplay loop muted playsinline class="rw-video"></video>
+                            </div>
                         </div>
                         <div class="rw-step" id="rw-step-3">
                             <div class="rw-num">03</div>
                             <h3>Action</h3>
                             <p>When a KPI falls short, ANA triggers action immediately. Assign corrective tasks to the right person, log the root cause, set a deadline, and track resolution in real time — all linked directly to the KPI that raised the alert. No guesswork, no dropped balls. Every deviation drives a documented, accountable response.</p>
+                            <div class="rw-step-video">
+                                <video src="assets/Videos/ACTION.mp4" autoplay loop muted playsinline class="rw-video"></video>
+                            </div>
                         </div>
                         <div class="rw-step" id="rw-step-4">
                             <div class="rw-num">04</div>
                             <h3>Result</h3>
                             <p>Evaluate exact quantitative outcomes against your targets. Feed insights back into your next planning cycle with clarity.</p>
+                            <div class="rw-step-video">
+                                <video src="assets/Videos/RESULT.mp4" autoplay loop muted playsinline class="rw-video"></video>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -7013,19 +7175,6 @@ a {
                         <svg class="card-star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                     </div>
                     <p class="quote-text">"ANA has significantly <span style="color: var(--accent); font-weight: 600;">streamlined our data and reporting</span>. It provides <span style="color: var(--accent); font-weight: 600;">valuable insights</span> into our <span style="color: var(--accent); font-weight: 600;">performance metrics</span>, helping us stay on track with our goals."</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FOMO Liquid Glass CTA Section -->
-    <section class="cta-fomo-section">
-        <div class="liquid-cta-banner animate-on-scroll">
-            <div class="liquid-cta-box">
-                <div class="cta-content">
-                    <h2 class="cta-fomo-heading">Stop the execution gap today.</h2>
-                    <p class="cta-fomo-text">Don't let your team fall behind. Claim your 14-day premium trial now.</p>
-                    <button onclick="openModal()" class="btn-liquid">BOOK A DEMO</button>
                 </div>
             </div>
         </div>
@@ -7768,6 +7917,19 @@ a {
             canvas.addEventListener('touchend', () => isScratching = false);
         });
         </script>
+    </section>
+
+    <!-- FOMO Liquid Glass CTA Section -->
+    <section class="cta-fomo-section">
+        <div class="liquid-cta-banner animate-on-scroll">
+            <div class="liquid-cta-box">
+                <div class="cta-content">
+                    <h2 class="cta-fomo-heading">Stop the execution gap today.</h2>
+                    <p class="cta-fomo-text">Don't let your team fall behind. Claim your 14-day premium trial now.</p>
+                    <button onclick="openModal()" class="btn-liquid">BOOK A DEMO</button>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- FAQ Section -->
@@ -9093,14 +9255,14 @@ a {
             const laptopWrapper = document.querySelector('.laptop-wrapper');
             if (!laptopAssembly || !laptopWrapper) return;
 
-            // Use a generous rootMargin so promotion happens BEFORE the element is visible
+            // On mobile: keep flat, no 3D tilt at all
+            if (window.innerWidth <= 768) return;
+
             const gpuObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        // Near viewport: promote to GPU layer
                         laptopAssembly.style.willChange = 'transform';
                     } else {
-                        // Off screen: release GPU layer to free memory
                         laptopAssembly.style.willChange = 'auto';
                     }
                 });
@@ -9108,12 +9270,10 @@ a {
 
             gpuObserver.observe(laptopWrapper);
 
-            // On hover, keep will-change active for smooth flatten animation
             laptopWrapper.addEventListener('mouseenter', () => {
                 laptopAssembly.style.willChange = 'transform';
             });
             laptopWrapper.addEventListener('mouseleave', () => {
-                // Delay release until transition completes
                 setTimeout(() => {
                     if (!laptopWrapper.matches(':hover')) {
                         laptopAssembly.style.willChange = 'auto';
