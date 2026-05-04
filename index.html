@@ -1279,8 +1279,8 @@ a {
 }
 .marquee-track {
     display: flex; animation: marqueeScroll 30s linear infinite; gap: 80px; padding-right: 80px;
-    transform-style: preserve-3d;
     transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
 }
 .marquee-track:hover { animation-play-state: paused; }
 .marquee-logo {
@@ -1837,9 +1837,12 @@ a {
 /* Interactive Laptop Showcase */
 .interactive-demo-section {
     background: transparent;
-    overflow: hidden;
+    overflow: visible;
     position: relative;
-    z-index: 10;
+    z-index: 1;
+    isolation: isolate;
+    content-visibility: auto;
+    contain-intrinsic-size: 0 900px;
 }
 
 .laptop-wrapper {
@@ -1853,10 +1856,10 @@ a {
 .laptop-assembly {
     position: relative;
     width: 100%;
-    transform-style: preserve-3d;
     transform: rotateX(55deg) rotateY(-8deg) rotateZ(8deg) translateZ(-80px);
     transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-    contain: layout style;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 .laptop-wrapper:hover .laptop-assembly {
@@ -1877,7 +1880,8 @@ a {
     border: 4px solid #DFE1E5;
     box-shadow: inset 0 0 0 1px #B0B5BD, 0 -2px 10px rgba(255,255,255,0.4);
     overflow: hidden;
-    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 [data-theme="dark"] .laptop-lid {
     border-color: #3A3F47;
@@ -4921,7 +4925,7 @@ a {
                 <p>Hover over the laptop below to bring it into focus, then click the sidebar items to explore the platform inside the interactive preview.</p>
             </div>
             
-            <div class="laptop-wrapper animate-on-scroll delay-1">
+            <div class="laptop-wrapper">
                 <div class="laptop-assembly">
                     <div class="laptop-lid">
                         <div class="laptop-camera"></div>
@@ -8909,6 +8913,43 @@ a {
                 if (!atTop && !atBottom) e.preventDefault();
             }, { passive: false });
         }
+
+        // --- Laptop GPU layer management ---
+        // Promote laptop-assembly to its own GPU compositing layer only when near viewport.
+        // This prevents the browser from including it in the main-thread paint during scroll.
+        (function() {
+            const laptopAssembly = document.querySelector('.laptop-assembly');
+            const laptopWrapper = document.querySelector('.laptop-wrapper');
+            if (!laptopAssembly || !laptopWrapper) return;
+
+            // Use a generous rootMargin so promotion happens BEFORE the element is visible
+            const gpuObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Near viewport: promote to GPU layer
+                        laptopAssembly.style.willChange = 'transform';
+                    } else {
+                        // Off screen: release GPU layer to free memory
+                        laptopAssembly.style.willChange = 'auto';
+                    }
+                });
+            }, { rootMargin: '300px 0px 300px 0px', threshold: 0 });
+
+            gpuObserver.observe(laptopWrapper);
+
+            // On hover, keep will-change active for smooth flatten animation
+            laptopWrapper.addEventListener('mouseenter', () => {
+                laptopAssembly.style.willChange = 'transform';
+            });
+            laptopWrapper.addEventListener('mouseleave', () => {
+                // Delay release until transition completes
+                setTimeout(() => {
+                    if (!laptopWrapper.matches(':hover')) {
+                        laptopAssembly.style.willChange = 'auto';
+                    }
+                }, 900);
+            });
+        })();
 
         // --- Scroll fix: intercept wheel events on the 3D-transformed laptop screen ---
         // When the laptop-assembly has a CSS 3D transform, browsers may block scroll.
