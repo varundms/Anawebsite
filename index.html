@@ -4803,7 +4803,15 @@ a {
   .hero-buttons { gap: 12px; justify-content: center; }
   .hero-buttons .btn { width: 100%; justify-content: center; }
   .hero-keywords { flex-wrap: wrap; gap: 8px; justify-content: center; }
-  .hero-visual { display: none; }
+
+  /* Show the 4 hero stat cards on mobile — renders in a 2×2 grid below hero text */
+  .hero-visual { display: block; }
+  .godly-grid { gap: 14px; max-width: 100%; }
+  .hero-stat-card { padding: 18px 16px 16px; border-radius: 18px; }
+  .card-stat { font-size: clamp(26px, 8vw, 36px); gap: 8px; }
+  .stat-ring-container { width: 44px; height: 44px; }
+  .stat-icon-box { width: 34px; height: 34px; border-radius: 10px; margin-bottom: 12px; }
+  .card-sublabel { margin-bottom: 10px; }
 
   /* --- Interactive Laptop Section --- */
   .interactive-demo-section { padding: 60px 0 0; }
@@ -4834,12 +4842,10 @@ a {
   .laptop-shadow { display: none; }
   .laptop-camera { width: 4px; height: 4px; top: 7px; }
 
-  /* Scale down the internal UI to fit mobile screen */
-  .mis-app { font-size: 8px; }
-  .mis-sidebar { width: 100px; }
-  .mis-nav-item { padding: 4px 6px; font-size: 7.5px; gap: 4px; }
-  .mis-sidebar-section { font-size: 6.5px; padding: 6px 6px 3px; }
-  .mis-sidebar-footer { padding: 6px; }
+  /* Dashboard scaling handled by JS transform — no partial overrides needed */
+  .laptop-screen .mis-app {
+    transform-origin: top left;
+  }
 
   /* --- Railway / How It Works --- */
   .railway-layout { flex-direction: column; }
@@ -4913,8 +4919,6 @@ a {
   .hero { padding-top: 100px; }
   .hero-content h1 { font-size: 28px; }
   .laptop-lid { padding-bottom: 80%; }
-  .mis-sidebar { width: 80px; }
-  .mis-nav-item { font-size: 6.5px; padding: 3px 5px; }
   .section-header h2 { font-size: 24px; }
   .pricing-card { padding: 24px 16px; border-radius: 20px; }
 }
@@ -9676,6 +9680,51 @@ a {
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape' && lb.classList.contains('active')) closeLightbox();
             });
+        })();
+    </script>
+
+    <!-- Mobile: scale the dashboard to fill the full laptop screen with no blank space -->
+    <script>
+        (function () {
+            var DESIGN_W = 860; // mis-app design width at desktop laptop size
+
+            function scaleLaptopDashboard() {
+                var laptopScreen = document.querySelector('.laptop-screen');
+                var misApp = document.querySelector('.laptop-screen .mis-app');
+                if (!laptopScreen || !misApp) return;
+
+                if (window.innerWidth > 768) {
+                    // Desktop: clear all inline overrides, let CSS handle it normally
+                    misApp.style.transform = '';
+                    misApp.style.width = '';
+                    misApp.style.height = '';
+                    return;
+                }
+
+                var screenW = laptopScreen.offsetWidth;
+                var screenH = laptopScreen.offsetHeight;
+
+                // Retry once if layout hasn't settled yet (padding-bottom trick needs a frame)
+                if (!screenW || !screenH) {
+                    requestAnimationFrame(scaleLaptopDashboard);
+                    return;
+                }
+
+                // Scale purely by width so the dashboard always fills the full width
+                var scale = screenW / DESIGN_W;
+
+                misApp.style.transform = 'scale(' + scale + ')';
+                misApp.style.width  = (100 / scale) + '%';
+                // Pre-scale height exactly covers the screen height so nothing is blank
+                misApp.style.height = (screenH / scale) + 'px';
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                // Small delay lets the padding-bottom aspect-ratio finish computing
+                setTimeout(scaleLaptopDashboard, 150);
+            });
+
+            window.addEventListener('resize', scaleLaptopDashboard, { passive: true });
         })();
     </script>
 </body>
