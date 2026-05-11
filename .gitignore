@@ -2,3 +2,16 @@
 out/
 node_modules/
 .vercel
+
+# Binary media: canonical copies live in Supabase Storage (bucket anna-site-images).
+# Keep these folders/files on your machine for `npm run upload:media`; they are not versioned.
+/assets/
+
+# Root-level images/videos referenced from HTML (same Storage workflow)
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
+/*.gif
+/*.mp4
+/*.webm
