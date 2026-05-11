@@ -1,0 +1,8 @@
+# Media is rewritten to Supabase Storage at build time; keeps Git deploys small.
+assets/
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.mp4
+*.webm
