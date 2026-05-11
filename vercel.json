@@ -1,4 +1,11 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "build": {
+    "env": {
+      "SUPABASE_URL": "https://qfeuxyuyxjkmqjpiknes.supabase.co",
+      "STORAGE_PUBLIC_BUCKET": "anna-site-images"
+    }
+  },
   "buildCommand": "npm run build",
   "outputDirectory": "out",
   "installCommand": "npm install"

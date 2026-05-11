@@ -71,7 +71,7 @@ function copyDir(src, dest) {
 const base = resolveMediaBase();
 if (!base) {
   console.error(
-    "Set PUBLIC_SITE_IMAGES_BASE or SUPABASE_URL + STORAGE_PUBLIC_BUCKET (e.g. anna-site-images)."
+    "Missing media CDN base. Vercel: vercel.json build.env should set SUPABASE_URL + STORAGE_PUBLIC_BUCKET, or add PUBLIC_SITE_IMAGES_BASE in Project → Environment variables."
   );
   process.exit(1);
 }
